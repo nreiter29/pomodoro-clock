@@ -171,7 +171,7 @@ const App = () => {
       </Show>
       <Show below="md">
         <Stack h="100%" direction="row" justifyContent="center" backgroundColor="#E5E5E5" w="100%" alignItems="center">
-          <Box h="100vh" w="100vw" textAlign="center">
+          <Box h="844px" w="100vw" textAlign="center">
             <Box flexDirection="row" display="flex" justifyContent="center" mt="150px">
               <Link onClick={() => { setWorkTime(workTime - 1) }} _hover={{ border: 'none' }}>
                 <Text color="#E53E3E" fontSize="30px">-</Text>
