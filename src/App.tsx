@@ -2,8 +2,40 @@ import { Play } from '@chakra-icons/ionicons'
 import { Reload } from '@chakra-icons/simple-line-icons'
 import { PlayerPause } from '@chakra-icons/tabler-icons'
 import { Box, CircularProgress, CircularProgressLabel, Container, Link, Stack, Text, Show, Hide } from '@chakra-ui/react'
+import type { StringOrNumber } from '@chakra-ui/utils'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import UseCountDown from 'react-countdown-hook'
+
+const TimeControl: React.FC<{ time: number, setTime: any, headline: string, mt?: string}> = ({ time, setTime, headline, mt }) => {
+  return (
+    <Box textAlign="center" minW="375px">
+      <Box flexDirection="row" display="flex" justifyContent="center" mt={mt}>
+        <Link onClick={() => { setTime(time - 1) }} _hover={{ border: 'none' }}>
+          <Text color="#E53E3E" fontSize={{ base: '60px', lg: '128px' }}>-</Text>
+        </Link>
+        <Box display="flex" flexDirection="column" gap="20px">
+          <Text color="black" fontSize={{ base: '20px', lg: '40px' }} fontWeight={700} h="0">{headline}</Text>
+          <Text fontSize={{ base: '60px', lg: '128px' }} ml={{ base: '5px', lg: '22px' }} mr={{ base: '5px', lg: '22px' }} textAlign="center">{time}</Text>
+        </Box>
+        <Link onClick={() => setTime(time + 1)} _hover={{ border: 'none' }}>
+          <Text color="#E53E3E" fontSize={{ base: '60px', lg: '128px' }}>+</Text>
+        </Link>
+      </Box>
+    </Box>
+  )
+}
+
+const TimeCircle: React.FC<{seconds: string, sec: number, notStarted: boolean, workTime: number, minutes: number, size: StringOrNumber }> = ({ seconds, sec, notStarted, workTime, minutes, size }) => {
+  return (
+    <Box textAlign="center" mt={{ base: '0px', lg: '90px' }}>
+      <CircularProgress size={size} thickness="2px" color="red.400" value={sec} max={60} trackColor="red.200">
+        <CircularProgressLabel>
+          <Text fontSize={{ base: '75px', lg: '128px' }}>{notStarted ? workTime : minutes}:{seconds}</Text>
+        </CircularProgressLabel>
+      </CircularProgress>
+    </Box>
+  )
+}
 
 const App = () => {
   const [workTime, setWorkTime] = useState(25)
@@ -105,44 +137,14 @@ const App = () => {
   }
 
   return (
-    <Box>
-      <Show above="md">
-        <Container w="100vw" h="100vh" backgroundColor="#E5E5E5" maxW="100vw" maxH="100vh" alignItems="center" display="flex" justifyContent="center">
-          <Stack w="1768px" h="956px" direction="row" justifyContent="space-between">
-            <Box h="full" w="345px" textAlign="center">
-              <Box flexDirection="row" display="flex" justifyContent="center" mt="240px">
-                <Link onClick={() => { setWorkTime(workTime - 1) }} _hover={{ border: 'none' }}>
-                  <Text color="#E53E3E" fontSize="128px">-</Text>
-                </Link>
-                <Box display="flex" flexDirection="column" gap="20px">
-                  <Text color="black" fontSize="40px" fontWeight={700} h="0">Work Time</Text>
-                  <Text fontSize="128px" ml="22px" mr="22px" textAlign="center">{workTime}</Text>
-                </Box>
-                <Link onClick={() => setWorkTime(workTime + 1)} _hover={{ border: 'none' }}>
-                  <Text color="#E53E3E" fontSize="128px">+</Text>
-                </Link>
-              </Box>
-            </Box>
-            <Box h="full" w="500px">
-              <Box flexDirection="row" display="flex" justifyContent="center">
-                <Link onClick={() => setLongBreakTime(longBreakTime - 1)} _hover={{ border: 'none' }}>
-                  <Text color="#E53E3E" fontSize="128px">-</Text>
-                </Link>
-                <Box display="flex" flexDirection="column" gap="20px">
-                  <Text color="black" fontSize="40px" fontWeight={700} h="0">Long Break</Text>
-                  <Text fontSize="128px" ml="22px" mr="22px" textAlign="center">{longBreakTime}</Text>
-                </Box>
-                <Link onClick={() => setLongBreakTime(longBreakTime + 1)} _hover={{ border: 'none' }}>
-                  <Text color="#E53E3E" fontSize="128px">+</Text>
-                </Link>
-              </Box>
-              <Box textAlign="center" mt="90px">
-                <CircularProgress size="500px" thickness="2px" color="red.400" value={sec} max={60} trackColor="red.200">
-                  <CircularProgressLabel>
-                    <Text fontSize="128px">{notStarted ? workTime : minutes}:{seconds}</Text>
-                  </CircularProgressLabel>
-                </CircularProgress>
-              </Box>
+    <Box backgroundColor="#E5E5E5" w="100%" h="100vh">
+      <Container maxW="container.xl" h="100vh" display="flex" alignItems="center" textAlign="center" justifyContent="center">
+        <Show above="lg">
+          <Stack direction="row" justifyContent="space-between" spacing="150px">
+            <TimeControl time={workTime} setTime={setWorkTime} headline="Work Time" mt="240px"/>
+            <Box>
+              <TimeControl time={shortBreakTime} setTime={setShortBreakTime} headline="Short Break" mt="0px"/>
+              <TimeCircle seconds={seconds} sec={sec} notStarted={notStarted} workTime={workTime} minutes={minutes} size="500px"/>
               <Stack direction="row" spacing="100px" justifyContent="center" alignContent="center">
                 <Link _hover={{ border: 'none' }}>
                   {isRunning ? <PlayerPause onClick={() => handleResume()} fontSize="100px"/> : <Play fontSize="100px" onClick={() => handlePlay()}/>}
@@ -152,84 +154,28 @@ const App = () => {
                 </Link>
               </Stack>
             </Box>
-            <Box h="full" w="345px" textAlign="center">
-              <Box flexDirection="row" display="flex" justifyContent="center" mt="240px">
-                <Link onClick={() => setShortBreakTime(shortBreakTime - 1)} _hover={{ border: 'none' }}>
-                  <Text color="#E53E3E" fontSize="128px">-</Text>
-                </Link>
-                <Box display="flex" flexDirection="column">
-                  <Text color="black" fontSize="40px" fontWeight={700} h="20px" whiteSpace="nowrap">Short Break</Text>
-                  <Text fontSize="128px" ml="22px" mr="22px" textAlign="center">{shortBreakTime}</Text>
-                </Box>
-                <Link onClick={() => setShortBreakTime(shortBreakTime + 1)} _hover={{ border: 'none' }}>
-                  <Text color="#E53E3E" fontSize="128px">+</Text>
-                </Link>
-              </Box>
-            </Box>
+            <TimeControl time={longBreakTime} setTime={setLongBreakTime} headline="Long Break" mt="240px"/>
           </Stack>
-        </Container>
-      </Show>
-      <Show below="md">
-        <Stack h="100%" direction="row" justifyContent="center" backgroundColor="#E5E5E5" w="100%" alignItems="center">
-          <Box h="844px" w="100vw" textAlign="center">
-            <Box flexDirection="row" display="flex" justifyContent="center" mt="150px">
-              <Link onClick={() => { setWorkTime(workTime - 1) }} _hover={{ border: 'none' }}>
-                <Text color="#E53E3E" fontSize="30px">-</Text>
-              </Link>
-              <Box display="flex" flexDirection="column" gap="30px">
-                <Text color="black" fontSize="10px" fontWeight={700} h="0">Work Time</Text>
-                <Text fontSize="30px" ml="22px" mr="22px" textAlign="center">{workTime}</Text>
-              </Box>
-              <Link onClick={() => setWorkTime(workTime + 1)} _hover={{ border: 'none' }}>
-                <Text color="#E53E3E" fontSize="30px">+</Text>
-              </Link>
-            </Box>
-          </Box>
-          <Box h="auto" w="full">
-            <Box flexDirection="row" display="flex" justifyContent="center">
-              <Link onClick={() => setLongBreakTime(longBreakTime - 1)} _hover={{ border: 'none' }}>
-                <Text color="#E53E3E" fontSize="30px">-</Text>
-              </Link>
-              <Box display="flex" flexDirection="column" gap="30px">
-                <Text color="black" fontSize="10px" fontWeight={700} h="0">Long Break</Text>
-                <Text fontSize="30px" ml="22px" mr="22px" textAlign="center">{longBreakTime}</Text>
-              </Box>
-              <Link onClick={() => setLongBreakTime(longBreakTime + 1)} _hover={{ border: 'none' }}>
-                <Text color="#E53E3E" fontSize="30px">+</Text>
-              </Link>
-            </Box>
-            <Box textAlign="center" mt="40px">
-              <CircularProgress size="170px" thickness="2px" color="red.400" value={sec} max={60} trackColor="red.200">
-                <CircularProgressLabel>
-                  <Text fontSize="30px">{notStarted ? workTime : minutes}:{seconds}</Text>
-                </CircularProgressLabel>
-              </CircularProgress>
-            </Box>
-            <Stack direction="row" spacing="50px" justifyContent="center" alignContent="center" alignItems="center" mt="75px">
+        </Show>
+        <Show below="lg">
+          <Stack>
+            <TimeCircle seconds={seconds} sec={sec} notStarted={notStarted} workTime={workTime} minutes={minutes} size="300px"/>
+            <Stack spacing="15px">
+              <TimeControl time={workTime} setTime={setWorkTime} headline="Work Time"/>
+              <TimeControl time={shortBreakTime} setTime={setShortBreakTime} headline="Short Break"/>
+              <TimeControl time={longBreakTime} setTime={setLongBreakTime} headline="Long Break"/>
+            </Stack>
+            <Stack direction="row" spacing="100px" justifyContent="center" alignContent="center">
               <Link _hover={{ border: 'none' }}>
-                {isRunning ? <PlayerPause onClick={() => handleResume()} fontSize="50px"/> : <Play fontSize="50px" onClick={() => handlePlay()}/>}
+                {isRunning ? <PlayerPause onClick={() => handleResume()} fontSize="60px"/> : <Play fontSize="60px" onClick={() => handlePlay()}/>}
               </Link>
               <Link onClick={() => { (rotation === '360deg') ? setRotation('0deg') : setRotation('360deg'); reset(); setIsRunning(false); setIsPaused(false); setNotStarted(true) }}>
-                <Reload transition="0.5s" transform={`rotate(${rotation})`} fontSize="43px" color="black"/>
+                <Reload transition="0.5s" transform={`rotate(${rotation})`} fontSize="50px" color="black"/>
               </Link>
             </Stack>
-          </Box>
-          <Box h="844px" w="vw" textAlign="center">
-            <Box flexDirection="row" display="flex" mt="150px" mb="644px">
-              <Link onClick={() => setShortBreakTime(shortBreakTime - 1)} _hover={{ border: 'none' }}>
-                <Text color="#E53E3E" fontSize="30px">-</Text>
-              </Link>
-              <Box display="flex" flexDirection="column">
-                <Text color="black" fontSize="10px" fontWeight={700} h="30px" whiteSpace="nowrap">Short Break</Text>
-                <Text fontSize="30px" ml="22px" mr="22px" textAlign="center">{shortBreakTime}</Text>
-              </Box>
-              <Link onClick={() => setShortBreakTime(shortBreakTime + 1)} _hover={{ border: 'none' }}>
-                <Text color="#E53E3E" fontSize="30px">+</Text>
-              </Link>
-            </Box>
-          </Box>
-        </Stack>
-      </Show>
+          </Stack>
+        </Show>
+      </Container>
     </Box>
   )
 }
